@@ -10,6 +10,3 @@ export const multerOption = {
     )
   }
 };
-
-const storage = multer.memoryStorage();
-export const memoryOption = multer({storage});

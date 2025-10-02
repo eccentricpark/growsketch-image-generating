@@ -1,22 +1,22 @@
 import { geminiClient } from "../../shared/axios-custom";
-import { logger, errorLogger } from "@/config/winston";
+import { logger, errorLogger } from "../../config/winston";
 
 const NANO_BANANA = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
-export async function generateImage(prompt:string, images:object[]){
+export async function generateImage(prompt:string, images:Express.Multer.File[]){
   try {
-    // const imageList = images.map(image => {
-    //   return {
-    //     "inline_data":{
-    //       "mime_type": image.mime_type,
-    //       "data": image.data
-    //     }
-    //   };
-    // });
+    const imageList = images.map(image => {
+      return {
+        "inline_data":{
+          "mime_type": image.mimetype,
+          "data": image.buffer
+        }
+      };
+    });
     const requestBody = {
       "contents":[{
         "parts":[
           {"text" : `${prompt}`},
-          // imageList,
+          imageList,
         ]
       }],
     };

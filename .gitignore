@@ -3,3 +3,7 @@ dist/
 logs/
 .env
 .env.*
+*.png
+uploads/
+docker-builder.bat
+Dockerfile
