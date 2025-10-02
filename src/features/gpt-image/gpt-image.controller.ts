@@ -1,16 +1,14 @@
-// user.controller.ts
 import { JsonController, Post, UploadedFiles, Body } from 'routing-controllers';
 import { Service } from 'typedi';
 import { multerOption } from '../../shared/multer';
 import { generateImage, editImage, editPartImage } from './gpt-image.api';
-import { logger } from '../../config/winston';
 
 const MIME_PNG = "image/png";
 const MIME_JPG = "image/jpg";
 const MIME_BMP = "image/bmp";
 
 function isImage(mimetype:String){
-  return (mimetype !== MIME_JPG || mimetype !== MIME_PNG || mimetype !== MIME_BMP);
+  return (mimetype === MIME_JPG || mimetype === MIME_PNG || mimetype === MIME_BMP);
 }
 
 @Service()
@@ -19,10 +17,6 @@ export class GptImageController {
   constructor(
   ) {}
 
-  /**
-   * 이미지 2장과 프롬프트를 입력하면
-   * GPT를 통해 이미지를 생성한다.
-   */
   @Post('/generating')
   async generateImage(@Body() body: {prompt: string}){
     const { prompt } = body;
@@ -32,13 +26,14 @@ export class GptImageController {
 
   @Post('/editing')
   async editImage(
-    @UploadedFiles('images', multerOption) images: Express.Multer.File[], 
+    @UploadedFiles('images', multerOption) image: Express.Multer.File, 
     @Body() body: {prompt: string}
   ){
     const { prompt } = body;
-    if (!images) throw new Error("이미지 파일을 올리셔야 합니다!");
+    if(!isImage(image.mimetype)) 
+      throw new Error("지원하지 않는 이미지 형식입니다! (png, jpg, bmp만 가능)");
 
-    const response = await editImage(prompt, images);
+    const response = await editImage(prompt, image);
     return response?.imageBytes;
   }
 
@@ -48,11 +43,12 @@ export class GptImageController {
     @Body() body: {prompt: string}
   ){
     const { prompt } = body;
-    if(isImage(images[0].mimetype) && isImage(images[1].mimetype)){
-      if (!images) throw new Error("이미지 파일을 올려야 합니다!");
-    }
-    
+    if(images.length !== 2)
+      throw new Error("이미지는 반드시 2개를 올려야 합니다.");
 
+    if(!isImage(images[0].mimetype) && !isImage(images[1].mimetype))
+      throw new Error("지원하지 않는 이미지 형식입니다! (png, jpg, bmp만 가능)");
+    
     const response = await editPartImage(prompt, images);
     return response?.imageBytes;
   }

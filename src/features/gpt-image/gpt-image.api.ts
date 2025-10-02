@@ -33,12 +33,12 @@ export async function generateImage(prompt: string){
   }
 }
 
-export async function editImage(prompt: string, images:Express.Multer.File[]){
+export async function editImage(prompt: string, image:Express.Multer.File){
   try {
     const openai = new OpenAI({
       apiKey: process.env.GPT_API_KEY
     });
-    const file = images[0];
+    const file = image;
     const buffer = fs.readFileSync(file.path);
     const blob = new Blob([buffer], { type: file.mimetype });
     const target = new File([blob], file.originalname, { type: blob.type });
