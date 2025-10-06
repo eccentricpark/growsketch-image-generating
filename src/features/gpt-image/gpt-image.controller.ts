@@ -50,6 +50,6 @@ export class GptImageController {
       throw new Error("지원하지 않는 이미지 형식입니다! (png, jpg, bmp만 가능)");
     
     const response = await editPartImage(prompt, images);
-    return response?.imageBytes;
+    return response;
   }
 }

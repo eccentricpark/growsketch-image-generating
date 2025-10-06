@@ -57,7 +57,8 @@ export async function editImage(prompt: string, image:Express.Multer.File){
       if(imageBase64 !== undefined){
         const imageBytes = Buffer.from(imageBase64, "base64");
         logger.info("이미지 생성 완료");
-        fs.writeFileSync("output.png", imageBytes);
+        historyFileLog(image);
+        fs.rmSync(image.path);
         return {
           imageBytes: imageBytes,
           mimetype: file.mimetype,
@@ -98,11 +99,14 @@ export async function editPartImage(prompt: string, images:Express.Multer.File[]
       if(imageBase64 !== undefined){
         const imageBytes = Buffer.from(imageBase64, "base64");
         logger.info("이미지 생성 완료");
-        fs.writeFileSync("output.png", imageBytes);
+        historyFileLog(images[0]);
+        historyFileLog(images[1]);
+        fs.rmSync(images[0].path);
+        fs.rmSync(images[1].path);
         return {
           imageBytes: imageBytes,
-          mimetype: "image/png",
-          filename: "edited.png"
+          mimetype: "image/jpg",
+          filename: "edited.jpg"
         };
       }
     }
@@ -110,4 +114,12 @@ export async function editPartImage(prompt: string, images:Express.Multer.File[]
     errorLogger.error(error);
     throw error;
   }
+}
+
+function historyFileLog(file: Express.Multer.File){
+  logger.info(`File name : ${file.originalname}`);
+  logger.info(`File type : ${file.mimetype}`);
+  logger.info(`File destination : ${file.destination}`);
+  logger.info(`File path : ${file.path}`);
+  logger.info(`=========================================`);
 }
